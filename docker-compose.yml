@@ -1,0 +1,28 @@
+services:
+  iris:
+    image: intersystemsdc/iris-community:2026.1
+    # To build from the Dockerfile instead (e.g. to add Python packages or
+    # copy in source), comment the line above and uncomment:
+    # build: .
+    ports:
+      - "${IRIS_PORT:-52773}:52773"
+      - "${IRIS_SUPER_PORT:-1972}:1972"
+    volumes:
+      - iris-data:/usr/irissys/mgr
+      # Uncomment to mount source files for live editing:
+      # - ./src:/irisdev/app/src
+    environment:
+      - IRIS_PASSWORD=${IRIS_PASSWORD:-SYS}
+      - IRIS_USERNAME=${IRIS_USERNAME:-_SYSTEM}
+      # Uncomment to apply a CPF merge file at startup:
+      # - ISC_CPF_MERGE_FILE=/config/merge.cpf
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "iris", "status", "IRIS"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  iris-data:

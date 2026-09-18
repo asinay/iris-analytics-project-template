@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "intersystems-community.vscode-objectscript",
+    "intersystems-community.intersystems-servermanager",
+    "intersystems-community.intersystems-language-server",
+    "ms-python.python",
+    "humao.rest-client",
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens"
+  ]
+}

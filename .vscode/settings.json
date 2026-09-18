@@ -1,0 +1,19 @@
+{
+  "objectscript.conn": {
+    "server": "iris-local",
+    "ns": "USER",
+    "active": true
+  },
+  "intersystems.servers": {
+    "iris-local": {
+      "webServer": {
+        "scheme": "http",
+        "host": "localhost",
+        "port": 52773
+      },
+      "username": "_SYSTEM"
+    }
+  },
+  "objectscript.autoCompile": true,
+  "objectscript.compileFlags": "cuk"
+}

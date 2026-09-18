@@ -1,0 +1,44 @@
+{
+  "name": "IRIS Dev",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "iris",
+  "workspaceFolder": "/irisdev/app",
+  "remoteUser": "irisowner",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "intersystems-community.vscode-objectscript",
+        "intersystems-community.intersystems-servermanager",
+        "intersystems-community.intersystems-language-server",
+        "ms-python.python",
+        "humao.rest-client",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "objectscript.conn": {
+          "server": "iris-local",
+          "ns": "USER",
+          "active": true
+        },
+        "intersystems.servers": {
+          "iris-local": {
+            "webServer": {
+              "scheme": "http",
+              "host": "localhost",
+              "port": 52773
+            },
+            "username": "_SYSTEM"
+          }
+        },
+        "objectscript.autoCompile": true,
+        "objectscript.compileFlags": "cuk"
+      }
+    }
+  },
+
+  "forwardPorts": [52773, 1972],
+
+  "postCreateCommand": "echo 'Dev container ready. Open the ObjectScript panel to connect to IRIS.'"
+}

@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "iris-agentic-dev": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "IRIS_HOST",
+        "-e",
+        "IRIS_WEB_PORT",
+        "-e",
+        "IRIS_USERNAME",
+        "-e",
+        "IRIS_PASSWORD",
+        "ghcr.io/intersystems-community/iris-agentic-dev:latest",
+        "mcp"
+      ],
+      "env": {
+        "IRIS_HOST": "host.docker.internal",
+        "IRIS_WEB_PORT": "${IRIS_PORT:-52773}",
+        "IRIS_USERNAME": "${IRIS_USERNAME:-_SYSTEM}",
+        "IRIS_PASSWORD": "${IRIS_PASSWORD:-SYS}"
+      }
+    }
+  }
+}
