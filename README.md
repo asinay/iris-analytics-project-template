@@ -28,6 +28,9 @@ docker compose down -v        # clean up including volumes
 - `.claude/mcp.json` + `CLAUDE.md` — wires Claude Code to [iris-agentic-dev](https://github.com/intersystems-community/iris-agentic-dev),
   an MCP server that gives it direct tools against the running IRIS container (query, compile,
   run tests) instead of raw `docker exec`/REST calls
+- `scripts/verify.sh` — builds the image and smoke-tests it (healthy boot, every IPM module actually
+  installed, every embedded Python package actually importable) under its own throwaway compose
+  project, then tears itself down
 
 ## Adding Python Packages or ZPM/IPM Modules
 
@@ -39,11 +42,16 @@ The Dockerfile's blocks are commented out on purpose — this section is the mis
    registry-module loop) and fill in package/module names.
 3. `docker compose build && docker compose up -d` (or just `docker compose up -d --build`).
 
-For a ZPM/IPM module with a post-install step (anything beyond registering a web app), dry-run it
-first in a running container before trusting a green build — see `CLAUDE.md`'s note on why
-(`docker compose build` succeeding doesn't mean the module's install actually worked). The
-`samples-bi` comment already in the Dockerfile is a real example of this: it needs the `USER`
-namespace specifically, not `%SYS`, or it fails silently past the compile step.
+Never install ZPM/IPM modules into `%SYS` — always `USER` (or another namespace whose default
+database shares its name). `%SYS`'s database is `IRISSYS`, not `%SYS`; modules that assume
+namespace name == database name (e.g. `samples-bi`'s post-install step) fail with `<INVALID OREF>`
+there, and even ones that don't end up isolated from any BI cube/pivot data other modules put in
+`USER`. Dry-run an unfamiliar module in a running container before trusting a green build — see
+`CLAUDE.md`'s note on why (`docker compose build` succeeding doesn't mean the module's install
+actually worked). `scripts/verify.sh` automates this dry-run: it builds, boots the container,
+confirms every module in the Dockerfile's install loop is actually listed by IPM and every embedded
+Python package actually imports, then tears itself down — run it after touching either list instead
+of checking by hand.
 
 ## Design Notes
 

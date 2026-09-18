@@ -46,13 +46,19 @@ before starting Claude Code, or edit the default directly in `.claude/mcp.json`.
 - The commented-out WSL2 fix in the Dockerfile (`touch ${ISC_PACKAGE_INSTALLDIR}/iris.init`) exists
   because IRIS's first-boot bootstrap can crash under Docker Desktop + WSL2. Uncomment it if `docker
   compose up` fails on first run on Windows.
+- **Never install IPM/ZPM modules into `%SYS`** — install into `USER` (or another namespace whose
+  default database shares its name). `%SYS`'s database is `IRISSYS`, not `%SYS`, and modules that
+  assume namespace name == database name (e.g. `samples-bi`'s post-install step) fail fast with
+  `<INVALID OREF>` there and never populate data. Modules that only register a web app *compile*
+  fine in `%SYS`, but they still end up isolated from any BI cube/pivot data that other modules put
+  in `USER` — so treat this as a blanket rule, not a case-by-case judgment call.
 - Before wiring an unfamiliar ZPM/IPM module into the Dockerfile's registry-module loop, dry-run
   `##class(%IPM.Main).Shell("install <name> -verbose")` in a running container first if it has a
   post-install `Invoke` step (check its `module.xml`). `docker compose build` succeeding only proves
   the shell command exited 0 — IPM/ZPM `Activate` failures print `ERROR!` but don't fail the build.
-  Real example: `samples-bi`'s post-install step assumes the current namespace name is also a
-  database name, which holds for `USER` but not `%SYS` (database `IRISSYS`) — installing it into
-  `%SYS` compiles fine but fails fast with `<INVALID OREF>` and never populates data.
+  `scripts/verify.sh` automates this dry-run (build, boot, check every module actually installed and
+  every embedded Python package actually imports, then tear down) — run it instead of doing this by
+  hand after touching the Dockerfile's module or package lists.
 
 ## Local Dev
 

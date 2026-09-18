@@ -1,9 +1,9 @@
 services:
   iris:
-    image: intersystemsdc/iris-community:2026.1
-    # To build from the Dockerfile instead (e.g. to add Python packages or
-    # copy in source), comment the line above and uncomment:
-    # build: .
+    # image: intersystemsdc/iris-community:2026.1
+    # Building from the Dockerfile to add embedded Python packages and the
+    # IPM analytics modules (see Dockerfile for the module list):
+    build: .
     ports:
       - "${IRIS_PORT:-52773}:52773"
       - "${IRIS_SUPER_PORT:-1972}:1972"
@@ -18,7 +18,7 @@ services:
       # - ISC_CPF_MERGE_FILE=/config/merge.cpf
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "iris", "status", "IRIS"]
+      test: ["CMD-SHELL", "iris qlist IRIS | grep -q running"]
       interval: 30s
       timeout: 10s
       retries: 3
