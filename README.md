@@ -67,6 +67,23 @@ Extracted from patterns and pitfalls across several real IRIS projects:
 - Env vars are named `IRIS_PASSWORD` / `IRIS_USERNAME` / `IRIS_PORT` / `IRIS_SUPER_PORT` consistently —
   other projects have drifted between `IRIS_USER` and `IRIS_USERNAME`.
 
+## Published Image
+
+`.github/workflows/publish.yml` builds the Dockerfile and pushes it to this repo's own GHCR package
+— `ghcr.io/<owner>/<repo>`, resolved automatically from whatever repo the workflow runs in, so a
+project started from this template publishes under its own name without editing the workflow. It
+runs on every push to `master` (tagged `latest`) and on `v*.*.*` tags (tagged with the matching
+semver). Pull it instead of building locally by swapping the `image:`/`build:` lines in
+`docker-compose.yml` (see the comment there) once you know your own `<owner>/<repo>`.
+
+The first time the workflow runs, the resulting package is **private by default** — GHCR does not
+inherit the repo's public visibility automatically for tokens minted from `GITHUB_TOKEN`. To make it
+pullable without `docker login`, go to the package's page on GitHub (repo → **Packages** in the
+sidebar, or `github.com/<owner>?tab=packages`) → **Package settings** → **Change visibility** →
+**Public**, and link it to the repository if it isn't already ("Connect Repository") so it shows up
+under the repo's Packages tab. This is a one-time step per repo — a project created from this
+template needs to do it again for its own package.
+
 ## Variants Not Included Here
 
 These showed up in real projects but are situational enough to leave out of the default template.
@@ -75,6 +92,5 @@ Add them to the Dockerfile/compose above when a project actually needs them:
 - **JDBC connectivity** (`jaydebeapi` + JDBC jar) instead of embedded Python — requires a JVM via JPype
   and needs row-by-row decoding of `LONGVARCHAR` columns.
 - **Web Gateway** for a separate reverse-proxy front end.
-- **GitHub Actions CI** for build/test on push.
 - **Deploying this to a remote test box** (e.g. a cloud VM) — SSH/provisioning automation for a
   remote host is its own concern, not IRIS/Docker, so it belongs in a separate repo rather than here.

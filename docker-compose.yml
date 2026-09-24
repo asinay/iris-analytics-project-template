@@ -1,8 +1,11 @@
 services:
   iris:
     # image: intersystemsdc/iris-community:2026.1
+    # image: ghcr.io/<owner>/<repo>:latest   # this repo's own GHCR image — see README's "Published Image"
     # Building from the Dockerfile to add embedded Python packages and the
-    # IPM analytics modules (see Dockerfile for the module list):
+    # IPM analytics modules (see Dockerfile for the module list). CI publishes
+    # the built image to GHCR on push to master (see .github/workflows/publish.yml)
+    # — swap to the "image:" line above to pull it instead of building locally:
     build: .
     ports:
       - "${IRIS_PORT:-52773}:52773"
