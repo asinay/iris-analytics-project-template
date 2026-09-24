@@ -69,12 +69,16 @@ Extracted from patterns and pitfalls across several real IRIS projects:
 
 ## Published Image
 
-`.github/workflows/publish.yml` builds the Dockerfile and pushes it to this repo's own GHCR package
-— `ghcr.io/<owner>/<repo>`, resolved automatically from whatever repo the workflow runs in, so a
-project started from this template publishes under its own name without editing the workflow. It
-runs on every push to `master` (tagged `latest`) and on `v*.*.*` tags (tagged with the matching
-semver). Pull it instead of building locally by swapping the `image:`/`build:` lines in
-`docker-compose.yml` (see the comment there) once you know your own `<owner>/<repo>`.
+`.github/workflows/publish.yml` runs `scripts/verify.sh` (build + boot + confirm every IPM module and
+Python package actually work, not just that `docker build` exited 0) as a gate, then builds the
+Dockerfile and pushes it to this repo's own GHCR package — `ghcr.io/<owner>/<repo>`, resolved
+automatically from whatever repo the workflow runs in, so a project started from this template
+publishes under its own name without editing the workflow. It runs on every push to `master` (tagged
+`latest` plus a `sha-<short-sha>` tag) and on `v*.*.*` tags (tagged with the matching semver). Pull it
+instead of building locally by swapping the `image:`/`build:` lines in `docker-compose.yml` (see the
+comment there) once you know your own `<owner>/<repo>` — `latest` is safe to depend on here since the
+verify gate keeps it from ever pointing at a broken build; use a `sha-`/semver tag instead if you
+specifically need to pin to one build.
 
 The first time the workflow runs, the resulting package is **private by default** — GHCR does not
 inherit the repo's public visibility automatically for tokens minted from `GITHUB_TOKEN`. To make it

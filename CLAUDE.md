@@ -15,7 +15,6 @@ to the running IRIS container — compile ObjectScript, run SQL, inspect globals
 inspect productions — without shelling out to `docker exec` or hand-rolling REST calls.
 
 - Upstream: https://github.com/intersystems-community/iris-agentic-dev
-- Fork used here: https://github.com/asinay/iris-agentic-dev
 - MCP config: `.claude/mcp.json` (already wired to the `iris` service in `docker-compose.yml` via
   `host.docker.internal` + the ports/credentials in `.env`)
 
@@ -34,8 +33,8 @@ before starting Claude Code, or edit the default directly in `.claude/mcp.json`.
 
 ## Docker Conventions Used Here (don't drift from these)
 
-- Image tag is pinned explicitly (currently `2026.1`) — never `:latest`. Community images already
-  bundle ZPM; don't add a `-zpm` tag suffix.
+- The base image tag is currently `2026.1`. Community images already bundle ZPM; don't add a
+  `-zpm` tag suffix.
 - Env vars: `IRIS_PASSWORD`, `IRIS_USERNAME`, `IRIS_PORT`, `IRIS_SUPER_PORT`. Don't introduce
   `IRIS_USER` or other variants.
 - `${ISC_PACKAGE_MGRUSER}` / `${ISC_PACKAGE_IRISGROUP}` / `${ISC_PACKAGE_INSTALLDIR}` are used
@@ -59,6 +58,23 @@ before starting Claude Code, or edit the default directly in `.claude/mcp.json`.
   `scripts/verify.sh` automates this dry-run (build, boot, check every module actually installed and
   every embedded Python package actually imports, then tear down) — run it instead of doing this by
   hand after touching the Dockerfile's module or package lists.
+
+## Publishing to GHCR
+
+`.github/workflows/publish.yml` builds this repo's own image and pushes it to
+`ghcr.io/<owner>/<repo>` (resolved from `github.repository`, so a project cloned from this template
+publishes under its own name with no edits needed) on every push to `master` and on `v*.*.*` tags.
+
+- It runs `scripts/verify.sh` as a gate *before* logging into GHCR or pushing anything — the same
+  IPM `ERROR!`-but-exit-0 failure mode called out above would otherwise let a broken image reach
+  `latest` looking green. Don't remove that step to speed up the workflow.
+- Tags pushed: `latest` and `sha-<short-sha>` on `master`; the matching semver tags on `v*.*.*`.
+  `latest` is fine to depend on in `docker-compose.yml`'s commented `image:` line — use a
+  `sha-`/semver tag instead only if you need to pin to one specific build.
+- The GHCR package is **private by default** after the first push, regardless of the repo's own
+  visibility — GHCR doesn't inherit repo visibility, and the workflow's `GITHUB_TOKEN` can't change
+  package visibility itself. A human has to flip it once in the GitHub UI (package → **Package
+  settings** → **Change visibility** → **Public**) per repo — see README's "Published Image".
 
 ## Local Dev
 
