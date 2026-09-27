@@ -22,9 +22,10 @@ RUN ${ISC_PACKAGE_INSTALLDIR}/bin/irispython -m pip install --no-cache-dir \
 USER ${ISC_PACKAGE_MGRUSER}
 
 # --- Windows/WSL2 first-boot fix ---
-# Docker Desktop on WSL2 can crash IRIS's docker_setup_namespace() bootstrap
-# on first start. Pre-creating iris.init avoids it.
-# RUN touch ${ISC_PACKAGE_INSTALLDIR}/iris.init
+# Gets docker/after-start.sh into the image; see that file and docker-compose.yml's
+# command: override for how it avoids a Docker Desktop/WSL2 crash in the base image.
+COPY --chown=${ISC_PACKAGE_MGRUSER}:${ISC_PACKAGE_IRISGROUP} docker/after-start.sh /home/irisowner/after-start.sh
+RUN chmod +x /home/irisowner/after-start.sh
 
 # --- Copy source / config ---
 # COPY --chown=${ISC_PACKAGE_MGRUSER}:${ISC_PACKAGE_IRISGROUP} src/ /irisdev/app/src/

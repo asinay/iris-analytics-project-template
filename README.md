@@ -21,8 +21,9 @@ docker compose down -v        # clean up including volumes
 ## What's Included
 
 - `docker-compose.yml` — pinned IRIS Community image, named volume, healthcheck, `.env`-driven ports
-- `Dockerfile` — commented opt-in blocks for OS packages, embedded Python, a WSL2 first-boot fix,
-  source/config copy, and ZPM module install. Uncomment only what your project needs.
+- `Dockerfile` — commented opt-in blocks for OS packages, source/config copy, and ZPM module install
+  (uncomment only what your project needs), plus an always-on Windows/WSL2 first-boot fix
+  (`docker/after-start.sh`, wired in via `docker-compose.yml`'s `command:`)
 - `.vscode/` — ObjectScript server connection + recommended extensions
 - `.devcontainer/` — VS Code dev container wired to the same compose file
 - `.claude/mcp.json` + `CLAUDE.md` — wires Claude Code to [iris-agentic-dev](https://github.com/intersystems-community/iris-agentic-dev),
@@ -62,8 +63,8 @@ Extracted from patterns and pitfalls across several real IRIS projects:
 - Community images already bundle ZPM; no `-zpm` image tag suffix is needed.
 - `${ISC_PACKAGE_MGRUSER}` / `${ISC_PACKAGE_IRISGROUP}` / `${ISC_PACKAGE_INSTALLDIR}` are used instead of
   hardcoded names like `irisowner`, since they resolve correctly across IRIS versions.
-- On Windows/WSL2, IRIS's first-boot `docker_setup_namespace()` step can crash; pre-creating
-  `iris.init` at build time avoids it (commented block in the Dockerfile).
+- `docker-compose.yml`'s `command:` override and `docker/after-start.sh` work around a Docker
+  Desktop/WSL2 crash in the base image's first-boot step.
 - Env vars are named `IRIS_PASSWORD` / `IRIS_USERNAME` / `IRIS_PORT` / `IRIS_SUPER_PORT` consistently —
   other projects have drifted between `IRIS_USER` and `IRIS_USERNAME`.
 

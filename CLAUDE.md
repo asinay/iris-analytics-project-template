@@ -42,9 +42,8 @@ before starting Claude Code, or edit the default directly in `.claude/mcp.json`.
 - Embedded Python packages install via `${ISC_PACKAGE_INSTALLDIR}/bin/irispython -m pip` as **root**,
   before switching back to the IRIS user. Installing after the user switch fails silently on
   read-only site-packages — this bit a prior project, don't repeat it.
-- The commented-out WSL2 fix in the Dockerfile (`touch ${ISC_PACKAGE_INSTALLDIR}/iris.init`) exists
-  because IRIS's first-boot bootstrap can crash under Docker Desktop + WSL2. Uncomment it if `docker
-  compose up` fails on first run on Windows.
+- `docker-compose.yml`'s `command:` override and `docker/after-start.sh` work around a Docker
+  Desktop/WSL2 crash in the base image's own first-boot step. Don't remove them without testing on Windows first.
 - **Never install IPM/ZPM modules into `%SYS`** — install into `USER` (or another namespace whose
   default database shares its name). `%SYS`'s database is `IRISSYS`, not `%SYS`, and modules that
   assume namespace name == database name (e.g. `samples-bi`'s post-install step) fail fast with
